@@ -68,19 +68,19 @@ export const getSuggestedUsers = async (req, res) => {
 
     const usersFollowedByMe = await User.findById(userId).select("following");
 
-    const users = await User.aggeregate([
+    const users = await User.aggregate([
       {
         $match: {
           _id: { $ne: userId }
         }
       },
-      { sample: { size: 10 } }
+      { $sample: { size: 10 } }
     ])
 
-    const filteredUsers = users.filter(user => !usersFollowedByMe.following.includes(user._id))
+    const filteredUsers = users.filter((user) => !usersFollowedByMe.following.includes(user._id))
     const suggestedUsers = filteredUsers.slice(0, 4)
 
-    suggestedUsers.forEach(user => user.password = null)
+    suggestedUsers.forEach((user) => user.password = null)
 
     res.status(200).json(suggestedUsers);
   } catch (error) {
